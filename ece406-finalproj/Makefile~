@@ -1,0 +1,17 @@
+.PHONY : all, clean
+
+all		:	morphG
+
+morphG		:	morphologicalG.cu
+				nvcc morphologicalG.cu -o morphG -lopencv_core -lopencv_highgui				
+
+clean		:
+			rm -f morphG
+
+			
+# REMINDER: type these module loads before trying to compile
+#			module load gtk
+#			module load gstreamer/0.10.36/b1
+#			module load opencv
+#			module load cuda
+#			module load gcc/4.7.2
