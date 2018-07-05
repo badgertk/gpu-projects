@@ -1,0 +1,3 @@
+module load numpy
+module load gcc
+module load 

@@ -1,0 +1,28 @@
+.PHONY : all, clean
+
+all		:	imedgeG imedgeGStr imedgeGStrC
+
+imedgeG		:	imedgeG.cu
+				nvcc imedgeG.cu -o imedgeG -lopencv_core -lopencv_highgui
+				
+imedgeGStr	:	imedgeGStr.cu
+				nvcc ./imedgeGStr.cu -o -lopencv_core -lopencv_highgui
+				
+imedgeGStrC	:	imedgeGStrC.cu
+				nvcc imedgeGStrC.cu -o imedgeGStrC -lopencv_core -lopencv_highgui
+
+hflip		:	hflip.cu
+				nvcc	-gencode arch=compute_35,code=sm_35      \
+					-gencode arch=compute_35,code=compute_35 \
+					-o $@ $^ -lopencv_core -lopencv_highgui
+				
+clean		:
+			rm -f imedgeG imedgeGStr imedgeGStrC
+
+			
+# REMINDER: type these module loads before trying to compile
+#			module load gtk
+#			module load gstreamer/0.10.36/b1
+#			module load opencv
+#			module load cuda
+#			module load gcc/4.7.2

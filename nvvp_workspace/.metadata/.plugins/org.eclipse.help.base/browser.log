@@ -1,0 +1,10 @@
+
+Nov 05, 2015 13:46:16.91 NEW SESSION
+Nov 05, 2015 13:46:16.91 which: no mozilla in (/software/slurm/14.11.9/bin:/software/circ/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/ibutils/bin:/home/ywu37/bin:/software/cuda/7.5/bin)
+Nov 05, 2015 13:46:16.91 /usr/bin/firefox
+Nov 05, 2015 13:46:16.91 which: no netscape in (/software/slurm/14.11.9/bin:/software/circ/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/ibutils/bin:/home/ywu37/bin:/software/cuda/7.5/bin)
+
+Nov 08, 2015 05:24:09.21 NEW SESSION
+Nov 08, 2015 05:24:09.21 which: no netscape in (/software/slurm/14.11.9/bin:/software/circ/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/ibutils/bin:/home/ywu37/bin:/software/cuda/7.5/bin)
+Nov 08, 2015 05:24:09.23 /usr/bin/firefox
+Nov 08, 2015 05:24:09.23 which: no mozilla in (/software/slurm/14.11.9/bin:/software/circ/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/ibutils/bin:/home/ywu37/bin:/software/cuda/7.5/bin)
