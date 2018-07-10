@@ -1,0 +1,20 @@
+drop table if exists myRRs;  -- create table from scratch every time
+drop table if exists FeatureList;
+--drop table if exists <insert table name here>;
+
+-- assuming starting from just anns table:
+
+create table FeatureList as
+select distinct feature from anns;
+
+
+create table myRRs as
+select * from anns where feature="R";
+create table myQT as
+select * from anns where feature="N" or feature="t)";
+
+create table myQs as
+select * from anns where feature="N";
+
+create table myTs as
+select * from anns where feature="t)";

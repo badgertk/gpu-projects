@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+import sqlite3
+import argparse
+import csv
+import os
+import timer
+
+######################## Parse command line arguments: #########################
+
+parser = argparse.ArgumentParser(description='Extract all of the R deliniations')
+#parser.add_argument('csv_filename', help='csv file to convert')
+parser.add_argument('db_filename',  help='database filename', nargs='?')
+args = parser.parse_args()
+#if not args.db_filename:
+#    args.db_filename = os.path.splitext( args.db_filename )[0] + '.db'
+# We can now use args.csv_filename and args.db_filename when needed.
+
+########################### Connect to the database: ###########################
+
+
+con = sqlite3.connect( args.db_filename )
+cur = con.cursor()
+
+################## Populate the database using .sql file: ######################
+
+#TODO: script execution time printout .timer on doesn't work
+with Timer() as script_time:
+	with open("myRRs.sql", "r") as f:
+		cur.executescript( f.read() )
+	con.commit()
+print script_time.interval
+################## Print out results from database #############################
+
+print 'features'
+print '========'
+for row in cur.execute('select * from FeatureList;'):
+	feature = row[0] #tuple to int
+	print feature
+	
+print '========'
+for row in cur.execute('select count(feature) from FeatureList;'):
+	int1 = row[0] #tuple to int
+	print 'Number of features found: ' + str(int1)
+print '========'
+
+################## Finding the R to R (heart rate)##############################
+
+for row in cur.execute('select count(feature) from myRRs;'):
+	int1 = row[0] #tuple to int
+	print 'Number of Rs found: ' + str(int1)
+for row in cur.execute('select count(feature) from myRRs where lead=1;'):
+	int1 = row[0] #tuple to int
+	print 'Number of Rs in lead 1: ' + str(int1)
+for row in cur.execute('select count(feature) from myRRs where lead=2;'):
+	int1 = row[0] #tuple to int
+	print 'Number of Rs in lead 2: ' + str(int1)
+for row in cur.execute('select count(feature) from myRRs where lead=3;'):
+	int1 = row[0] #tuple to int
+	print 'Number of Rs in lead 3: ' + str(int1)
+
+#################################### Done. #####################################
+
+con.close()

@@ -1,0 +1,8 @@
+ : cannot connect to X server localhost:14.0
+--- Table Population: 15.9538969994 seconds ---
+Number of Rs found: 320442
+Number of Qs and Ts found: 640078
+Number of Qs and Ss found: 640815
+Number of Ss and Ts found: 640203
+--- R Printout: 7.62026810646 seconds ---
+--- Heartrate Computation: 7.76664996147 seconds ---

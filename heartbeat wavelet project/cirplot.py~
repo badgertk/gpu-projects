@@ -1,0 +1,251 @@
+#!/usr/bin/env python
+
+from ecgclock import QTClock
+
+#!/usr/bin/env python
+
+import sqlite3
+import argparse
+import csv
+import os
+import time
+import numpy
+
+#import pycuda.autoinit
+import pycuda.driver as drv
+from pycuda.compiler import SourceModule
+
+with open("test.cu") as cuda_file:
+    mod = SourceModule(cuda_file.read())
+
+
+
+######################## Parse command line arguments: #########################
+
+parser = argparse.ArgumentParser(description='Extract all of the R deliniations')
+#parser.add_argument('csv_filename', help='csv file to convert')
+parser.add_argument('db_filename',  help='database filename', nargs='?')
+args = parser.parse_args()
+#if not args.db_filename:
+#    args.db_filename = os.path.splitext( args.db_filename )[0] + '.db'
+# We can now use args.csv_filename and args.db_filename when needed.
+
+########################### Connect to the database: ###########################
+
+con = sqlite3.connect( args.db_filename )
+cur = con.cursor()
+
+################## Populate the database using .sql file: ######################
+
+script_time_start = time.time()
+
+with open("myRRs.sql", "r") as f:
+	cur.executescript( f.read() )
+con.commit()
+
+script_time_end = time.time()
+print("--- Table Population: %s seconds ---" % (script_time_end - script_time_start))
+################## Print out results from database #############################
+# featurelist_time_start = time.time()
+
+# print 'features'
+# print '========'
+# for row in cur.execute('select * from FeatureList;'):
+	# feature = row[0] #tuple to int
+	# print feature
+	
+# print '========'
+# for row in cur.execute('select count(feature) from FeatureList;'):
+	# cnt = row[0] #tuple to int
+	# print 'Number of features found: ' + str(cnt)
+# print '========'
+# featurelist_time_end = time.time()
+
+# print("--- FeatureList Printout: %s seconds ---" % (featurelist_time_end - featurelist_time_start))
+################## Finding the R to R (heart rate)##############################
+RR_time_start = time.time()
+
+for row in cur.execute('select count(feature) from myRRs;'):
+	cnt = row[0]
+	print 'Number of Rs found: ' + str(cnt)
+for row in cur.execute('select count(feature) from myQT;'):
+	cnt = row[0]
+	print 'Number of Qs and Ts found: ' + str(cnt)
+for row in cur.execute('select count(feature) from myQs;'):
+	cnt = row[0]
+	print 'Number of Qs found: ' + str(cnt)
+for row in cur.execute('select count(feature) from myTs;'):
+	cnt = row[0]
+	print 'Number of Ts found: ' + str(cnt)
+lead1_data = cur.execute('select * from myRRs where lead=1;')
+
+
+with open('lead1RR.csv', 'wb') as a:
+    writer = csv.writer(a)
+    writer.writerow(['id', 'lead', 'sample', 'feature'])
+    writer.writerows(lead1_data)
+lead2_data = cur.execute('select * from myRRs where lead=2;')
+
+with open('lead2RR.csv', 'wb') as b:
+    writer = csv.writer(b)
+    writer.writerow(['id', 'lead', 'sample', 'feature'])
+    writer.writerows(lead2_data)
+lead3_data = cur.execute('select * from myRRs where lead=3;')
+with open('lead3RR.csv', 'wb') as c:
+    writer = csv.writer(c)
+    writer.writerow(['id', 'lead', 'sample', 'feature'])
+    writer.writerows(lead3_data)
+
+
+#for row in cur.execute('select count(feature) from myRRs where lead=1;'):
+#	cnt = row[0] #tuple to int
+#	print 'Number of Rs in lead 1: ' + str(cnt)
+#for row in cur.execute('select count(feature) from myRRs where lead=2;'):
+#	cnt = row[0] #tuple to int
+#	print 'Number of Rs in lead 2: ' + str(cnt)
+#for row in cur.execute('select count(feature) from myRRs where lead=3;'):
+#	cnt = row[0] #tuple to int
+#	print 'Number of Rs in lead 3: ' + str(cnt)
+	
+RR_time_end = time.time()
+print("--- R Printout: %s seconds ---" % (RR_time_end - RR_time_start))
+#################################### Done. #####################################
+#TODO: 	db query can be outputed to .csv file
+#		now stick that into gpu for processing
+
+con.close()
+readRR_time_start = time.time()
+sampling_rate=200.00
+L1sample_no = []
+L2sample_no = []
+L3sample_no = []
+L1time = []
+L2time = []
+L3time = []
+with open('lead1RR.csv','rb') as csvfile:
+	csvreader = csv.reader(csvfile)
+	i = 0
+	for row in csvreader:	
+		#print ', '.join(row)
+		if(i!=0):
+			sample = int(row[2])
+			L1sample_no.append(sample)
+		i = i + 1
+
+with open('lead2RR.csv','rb') as csvfile:
+	csvreader = csv.reader(csvfile)
+	i = 0
+	for row in csvreader:	
+		#print ', '.join(row)
+		if(i!=0):
+			sample = int(row[2])
+			L2sample_no.append(sample)
+		i = i + 1
+with open('lead3RR.csv','rb') as csvfile:
+	csvreader = csv.reader(csvfile)
+	i = 0
+	for row in csvreader:	
+		#print ', '.join(row)
+		if(i!=0):
+			sample = int(row[2])
+			L3sample_no.append(sample)
+		i = i + 1
+readRR_time_end = time.time()
+print("--- Extract SampleID : %s seconds ---" % (readRR_time_end - readRR_time_start))
+Diff_time_start = time.time()
+#print sample_no
+L1sampleno = numpy.array(L1sample_no)
+L2sampleno = numpy.array(L2sample_no)
+L3sampleno = numpy.array(L3sample_no)
+#print sampleno
+L1samplediff= numpy.diff(L1sampleno)
+L2samplediff= numpy.diff(L2sampleno)
+L3samplediff= numpy.diff(L3sampleno)
+Diff_time_end = time.time()
+print("--- Taking Differences: %s seconds ---" % (Diff_time_end - Diff_time_start))
+#print samplediff
+HMS_time_start = time.time()
+for row in L1sampleno:
+	hour = int(row / (3600*sampling_rate))
+	minute = int(row / (60*sampling_rate)) % (60)
+	second = (row / sampling_rate)% (60)
+#	print hour
+#	print minute
+#	print second
+	finalcsvdata = str(hour) + ":" + str(minute) + ":" + str(second)
+	L1time.append(finalcsvdata)
+for row in L2sampleno:
+	hour = int(row / (3600*sampling_rate))
+	minute = int(row / (60*sampling_rate)) % (60)
+	second = (row / sampling_rate)% (60)
+#	print hour
+#	print minute
+#	print second
+	finalcsvdata = str(hour) + ":" + str(minute) + ":" + str(second)
+	L2time.append(finalcsvdata)
+for row in L3sampleno:
+	hour = int(row / (3600*sampling_rate))
+	minute = int(row / (60*sampling_rate)) % (60)
+	second = (row / sampling_rate)% (60)
+#	print hour
+#	print minute
+#	print second
+	finalcsvdata = str(hour) + ":" + str(minute) + ":" + str(second)
+	L3time.append(finalcsvdata)
+HMS_time_end = time.time()
+print("--- SampleID to hour:minute:second : %s seconds ---" % (HMS_time_end - HMS_time_start))
+HR_time_start = time.time()
+L1lensamplediff = len(L1samplediff)
+L2lensamplediff = len(L2samplediff)
+L3lensamplediff = len(L3samplediff)
+with open('lead1HR.csv', 'wb') as g:
+	writer = csv.writer(g)
+	writer.writerow(['time', 'HR per minute'])
+	for x in range(0,L1lensamplediff):
+		#print str(L1time[x])
+		L1samplediff[x] = L1samplediff[x]*60/200
+		writer.writerow([str(L1time[x])] + [str(L1samplediff[x])])
+with open('lead2HR.csv', 'wb') as h:
+	writer = csv.writer(h)
+	writer.writerow(['time', 'HR per minute'])
+	for x in range(0,L2lensamplediff):
+		#print str(L2time[x])
+		L2samplediff[x] = L2samplediff[x]*60/200
+		writer.writerow([str(L2time[x])] + [str(L2samplediff[x])])
+with open('lead3HR.csv', 'wb') as j:
+	writer = csv.writer(j)
+	writer.writerow(['time', 'HR per minute'])
+	for x in range(0,L3lensamplediff):
+		#print str(L3time[x])
+		L3samplediff[x] = L3samplediff[x]*60/200
+		writer.writerow([str(L3time[x])] + [str(L3samplediff[x])])
+
+print("Lead 3 HR average = %s" % numpy.average(L3samplediff))
+
+HR_time_end = time.time()
+print("--- Heartrate Computation: %s seconds ---" % (HR_time_end - HR_time_start))
+
+#print RtoR
+########################### Make a nice circular plot ##########################
+QTClock_time_start = time.time()
+my_clock = QTClock.QTClock('heartrate (bpm) for patient 9004')
+
+
+# Add two recordings to the plot.  Filtering is disabled because this data was
+# already filtered.
+#my_clock.add_recording('./ecgclock/example_data/baseline_eg.csv', label='baseline')
+my_clock.add_recording('./lead1HR.csv', label='lead1')
+my_clock.add_recording('./lead2HR.csv', label='lead2')
+my_clock.add_recording('./lead3HR.csv', label='lead3')
+    
+# >500ms will be highlighted red:
+my_clock.add_danger_range(150)
+    
+my_clock.add_legend()
+    
+my_clock.save('9004HR.png')
+    #my_clock.show()  # view it in an interactive window
+QTClock_time_end = time.time()
+print("--- QTClock Generation: %s seconds ---" % (QTClock_time_end - QTClock_time_start))
+print("----------------------------------------------------------------------------------")
+print("--- Total Execution Time: %s seconds ---" % (QTClock_time_end - script_time_start))

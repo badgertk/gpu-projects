@@ -1,0 +1,61 @@
+healthy female: N=99
+
+healthy male: N=102
+
+LQT1 female: N=114
+    cloop: N=22
+ noncloop: N=26
+ symptoms: N=55
+  no sym.: N=61
+    on BB: N=50
+   off BB: N=85
+   pre BB: N=20
+  post BB: N=20
+
+LQT1 male: N=88
+    cloop: N=14
+ noncloop: N=16
+ symptoms: N=33
+  no sym.: N=55
+    on BB: N=33
+   off BB: N=67
+   pre BB: N=11
+  post BB: N=11
+    
+LQT2 female: N=47
+     pore: N=15
+  nonpore: N=23
+ symptoms: N=23
+  no sym.: N=24
+    on BB: N=27
+   off BB: N=28
+   pre BB: N=8
+  post BB: N=8
+
+LQT2 male: N=42
+     pore: N=16
+  nonpore: N=13
+ symptoms: N=14
+  no sym.: N=28
+    on BB: N=17
+   off BB: N=32
+   pre BB: N=6
+  post BB: N=6
+
+LQT3 female: N=6
+ symptoms: N=2
+  no sym.: N=3*
+    on BB: N=2
+   off BB: N=4*
+   pre BB: N=2*
+  post BB: N=2*
+
+LQT3 male: N=8
+ symptoms: N=3
+  no sym.: N=5
+    on BB: N=5
+   off BB: N=5
+   pre BB: N=2*
+  post BB: N=2*
+
+*: not done yet

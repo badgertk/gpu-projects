@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#SBATCH --job-name=pythonexec
+#SBATCH --time=00:10:00
+#SBATCH --ntasks=1
+
+python cirplot.py 9004exec.db
